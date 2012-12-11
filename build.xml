@@ -986,6 +986,7 @@
       </path>
       <property name="c.lib" refid="c.lib"/>
       <mkdir dir="${package.buildroot}/BUILD" />
+      <mkdir dir="${package.buildroot}/BUILDROOT" />
       <mkdir dir="${package.buildroot}/RPMS" />
       <mkdir dir="${package.buildroot}/SRPMS" />
       <mkdir dir="${package.buildroot}/SOURCES" />
@@ -1012,7 +1013,7 @@
           </replacetokens>
         </filterchain>
       </copy>
-      <rpm specFile="zookeeper.spec" command="-ba --buildroot=${package.buildroot}/BUILD" topDir="${package.buildroot}" cleanBuildDir="true" failOnError="true"
+      <rpm specFile="zookeeper.spec" command="-ba --buildroot=${package.buildroot}/BUILDROOT" topDir="${package.buildroot}" cleanBuildDir="true" failOnError="true"
 />
       <copy todir="${build.dir}/" flatten="true">
         <fileset dir="${package.buildroot}/RPMS">

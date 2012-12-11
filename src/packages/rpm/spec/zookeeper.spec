@@ -70,7 +70,7 @@ Prefix: %{_conf_dir}
 Prefix: %{_log_dir}
 Prefix: %{_pid_dir}
 Prefix: %{_var_dir}
-Requires: sh-utils, textutils, /usr/sbin/useradd, /usr/sbin/usermod, /sbin/chkconfig, /sbin/service, jdk >= 1.6
+Requires: sh-utils, textutils, /usr/sbin/useradd, /usr/sbin/usermod, /sbin/chkconfig, /sbin/service, java >= 1:1.6.0
 AutoReqProv: no
 Provides: zookeeper
 
@@ -79,7 +79,7 @@ ZooKeeper is a centralized service for maintaining configuration information, na
 
 %package lib
 Summary: ZooKeeper C binding library
-Group: System/Libraries
+Group: Development/Libraries
 #Requires: %{name} == %{version}
 Provides: zookeeper-lib
 
@@ -87,45 +87,52 @@ Provides: zookeeper-lib
 ZooKeeper C client library for communicating with ZooKeeper Server.
 
 %prep
-%setup -D -b 1 -n %{_final_name}
-%setup -D -a 0 -n %{_final_name}
+%setup -q -T -b 0 -n %{_final_name}
+%setup -q -T -D -a 1 -n %{_final_name}
 
 %build
-mkdir -p ${RPM_BUILD_DIR}%{_prefix}
-mkdir -p ${RPM_BUILD_DIR}%{_bin_dir}
-mkdir -p ${RPM_BUILD_DIR}%{_include_dir}
-mkdir -p ${RPM_BUILD_DIR}%{_lib_dir}
-%ifarch amd64 x86_64
-mkdir -p ${RPM_BUILD_DIR}%{_lib64_dir}
-%endif
-mkdir -p ${RPM_BUILD_DIR}%{_libexec_dir}
-mkdir -p ${RPM_BUILD_DIR}%{_log_dir}
-mkdir -p ${RPM_BUILD_DIR}%{_conf_dir}
-mkdir -p ${RPM_BUILD_DIR}%{_man_dir}
-mkdir -p ${RPM_BUILD_DIR}%{_pid_dir}
-mkdir -p ${RPM_BUILD_DIR}%{_sbin_dir}
-mkdir -p ${RPM_BUILD_DIR}%{_share_dir}
-mkdir -p ${RPM_BUILD_DIR}%{_var_dir}
-mkdir -p ${RPM_BUILD_DIR}/etc/init.d
-
-cp ${RPM_BUILD_DIR}/%{_final_name}/src/packages/rpm/init.d/zookeeper ${RPM_BUILD_DIR}/etc/init.d/zookeeper
-cp ${RPM_BUILD_DIR}/%{_final_name}/src/packages/update-zookeeper-env.sh ${RPM_BUILD_DIR}/%{_final_name}/sbin/update-zookeeper-env.sh
-chmod 0755 ${RPM_BUILD_DIR}/%{_final_name}/sbin/*
-chmod 0755 ${RPM_BUILD_DIR}/etc/init.d/zookeeper
-
 #########################
 #### INSTALL SECTION ####
 #########################
+
 %install
-pushd ${RPM_BUILD_DIR}
-mv ${RPM_BUILD_DIR}/%{_final_name}/bin/* ${RPM_BUILD_DIR}%{_bin_dir}
-mv ${RPM_BUILD_DIR}/%{_final_name}/libexec/* ${RPM_BUILD_DIR}%{_libexec_dir}
-mv ${RPM_BUILD_DIR}/%{_final_name}/share/zookeeper/* ${RPM_BUILD_DIR}%{_share_dir}
-mv ${RPM_BUILD_DIR}/%{_final_name}/conf/* ${RPM_BUILD_DIR}%{_conf_dir}
-mv ${RPM_BUILD_DIR}/%{_final_name}/sbin/* ${RPM_BUILD_DIR}%{_sbin_dir}
-cp -f ${RPM_BUILD_DIR}%{_conf_dir}/zoo_sample.cfg ${RPM_BUILD_DIR}%{_conf_dir}/zoo.cfg
-popd ${RPM_BUILD_DIR}
-rm -rf ${RPM_BUILD_DIR}/%{_final_name}
+mkdir -p ${RPM_BUILD_ROOT}%{_prefix}
+mkdir -p ${RPM_BUILD_ROOT}%{_bin_dir}
+mkdir -p ${RPM_BUILD_ROOT}%{_include_dir}
+mkdir -p ${RPM_BUILD_ROOT}%{_lib_dir}
+mkdir -p ${RPM_BUILD_ROOT}%{_libexec_dir}
+mkdir -p ${RPM_BUILD_ROOT}%{_log_dir}
+mkdir -p ${RPM_BUILD_ROOT}%{_conf_dir}
+mkdir -p ${RPM_BUILD_ROOT}%{_man_dir}
+mkdir -p ${RPM_BUILD_ROOT}%{_pid_dir}
+mkdir -p ${RPM_BUILD_ROOT}%{_sbin_dir}
+mkdir -p ${RPM_BUILD_ROOT}%{_share_dir}
+mkdir -p ${RPM_BUILD_ROOT}%{_var_dir}
+mkdir -p ${RPM_BUILD_ROOT}/etc/init.d
+
+cp -p src/packages/rpm/init.d/zookeeper ${RPM_BUILD_ROOT}/etc/init.d/zookeeper
+cp -p src/packages/update-zookeeper-env.sh ${RPM_BUILD_ROOT}%{_sbin_dir}/update-zookeeper-env.sh
+chmod 0755 ${RPM_BUILD_ROOT}/etc/init.d/zookeeper
+
+cp -p bin/* ${RPM_BUILD_ROOT}%{_bin_dir}
+cp -p libexec/* ${RPM_BUILD_ROOT}%{_libexec_dir}
+cp -pr share/zookeeper/* ${RPM_BUILD_ROOT}%{_share_dir}
+cp -p conf/* ${RPM_BUILD_ROOT}%{_conf_dir}
+cp -p sbin/* ${RPM_BUILD_ROOT}%{_sbin_dir}
+chmod 0755 ${RPM_BUILD_ROOT}%{_sbin_dir}/
+cp -p conf/zoo_sample.cfg ${RPM_BUILD_ROOT}%{_conf_dir}/zoo.cfg
+
+%ifarch amd64 x86_64
+[ -d usr/lib64 ] && mkdir -p ${RPM_BUILD_ROOT}%{_lib64_dir} && \
+                    cp -p usr/lib64/* ${RPM_BUILD_ROOT}%{_lib64_dir}
+%endif
+
+cp -p usr/lib/* ${RPM_BUILD_ROOT}%{_lib_dir}
+cp -p usr/bin/* ${RPM_BUILD_ROOT}%{_bin_dir}
+cp -pr usr/include/* ${RPM_BUILD_ROOT}%{_include_dir}
+
+%clean 
+rm -rf ${RPM_BUILD_ROOT}
 
 %pre
 getent group hadoop 2>/dev/null >/dev/null || /usr/sbin/groupadd -r hadoop
@@ -162,5 +169,5 @@ bash ${RPM_INSTALL_PREFIX0}/sbin/update-zookeeper-env.sh \
 
 %files lib
 %defattr(-,root,root)
-%{_prefix}/lib/*
-%{_prefix}/bin
+%{_lib_dir}
+%{_bin_dir}
