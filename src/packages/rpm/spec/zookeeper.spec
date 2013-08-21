@@ -72,7 +72,7 @@ Prefix: %{_pid_dir}
 Prefix: %{_var_dir}
 Requires: sh-utils, textutils, /usr/sbin/useradd, /usr/sbin/usermod, /sbin/chkconfig, /sbin/service, java >= 1:1.6.0
 AutoReqProv: no
-Provides: zookeeper
+Provides: zookeeper, libzookeeper_mt.so.2()(64bit)
 Obsoletes: zookeeper-lib
 
 %description
